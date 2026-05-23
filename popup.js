@@ -54,6 +54,17 @@ function addResultItem(text) {
   item.appendChild(textSpan);
   item.appendChild(copyIcon);
   resultDiv.appendChild(item);
+  updateClearButtonVisibility();
+}
+
+function updateClearButtonVisibility() {
+  chrome.storage.local.get("snippedQR", (result) => {
+    if (result.snippedQR && result.snippedQR.length > 0) {
+      clearBtn.style.display = "block";
+    } else {
+      clearBtn.style.display = "none";
+    }
+  });
 }
 
 chrome.runtime.onMessage.addListener((message) => {
@@ -82,6 +93,9 @@ clearBtn.addEventListener("click", () => {
     const resultDiv = document.getElementById("result");
     resultDiv.innerHTML = "";
     resultDiv.textContent = "Waiting for the result....";
+    updateClearButtonVisibility();
   });
 });
+
+updateClearButtonVisibility();
 
