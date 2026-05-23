@@ -94,7 +94,7 @@ h1 {
 }
 
 #clear-btn {
-  display: block;
+  display: none;
   width: 100%;
   padding: 10px;
   background-color: #e53935;
