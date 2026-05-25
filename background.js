@@ -37,9 +37,48 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
           chrome.storage.local.get("snippedQR", (result) => {
             let qrdata = result.snippedQR || [];
             if (!qrdata.includes(code.data)) {
-                qrdata.push(code.data);
+              qrdata.push(code.data);
+              chrome.storage.local.set({ snippedQR: qrdata });
+            } else {
+              chrome.scripting.executeScript({
+                target: { tabId: sender.tab.id },
+                func: (url) => {
+                  const existing = document.getElementById("qr-snip-toast");
+                  if (existing) existing.remove();
+
+                  const toast = document.createElement("div");
+                  toast.id = "qr-snip-toast";
+                  Object.assign(toast.style, {
+                    position: "fixed",
+                    bottom: "28px",
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    backgroundColor: "#000",
+                    color: "#fff",
+                    padding: "10px 18px",
+                    borderRadius: "6px",
+                    fontSize: "13px",
+                    zIndex: "2147483647",
+                    maxWidth: "420px",
+                    wordBreak: "break-all",
+                    textAlign: "center",
+                    boxShadow: "0 2px 10px rgba(0,0,0,0.5)",
+                    opacity: "0",
+                    transition: "opacity 0.2s ease",
+                  });
+                  toast.textContent = `Already saved: ${url}`;
+                  document.body.appendChild(toast);
+                  requestAnimationFrame(() => {
+                    toast.style.opacity = "1";
+                  });
+                  setTimeout(() => {
+                    toast.style.opacity = "0";
+                    setTimeout(() => toast.remove(), 200);
+                  }, 3000);
+                },
+                args: [code.data],
+              });
             }
-            chrome.storage.local.set({ snippedQR: qrdata });
           });
         } else {
           console.log("No QR code found.");
