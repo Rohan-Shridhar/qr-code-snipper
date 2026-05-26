@@ -59,16 +59,49 @@ snipBtn.addEventListener("click", async () => {
     });
 });
 
+function isValidUrl(string) {
+  const trimmed = string.trim();
+  if (/^https?:\/\//i.test(trimmed)) {
+    try {
+      new URL(trimmed);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+  if (/^[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,6}(:[0-9]{1,5})?(\/.*)?$/i.test(trimmed)) {
+    try {
+      new URL("https://" + trimmed);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+  return false;
+}
+
 function addResultItem(text) {
   const resultDiv = document.getElementById("result");
 
   const item = document.createElement("div");
   item.className = "item";
 
-  const textSpan = document.createElement("span");
+  const isUrl = isValidUrl(text);
+  const textSpan = document.createElement(isUrl ? "a" : "span");
   textSpan.className = "text";
   textSpan.textContent = text;
-  textSpan.title = text;
+
+  if (isUrl) {
+    let href = text.trim();
+    if (!/^https?:\/\//i.test(href)) {
+      href = "https://" + href;
+    }
+    textSpan.href = href;
+    textSpan.target = "_blank";
+    textSpan.title = "Open";
+  } else {
+    textSpan.title = text;
+  }
 
   const copyIcon = document.createElement("i");
   copyIcon.className = "fas fa-copy icon";

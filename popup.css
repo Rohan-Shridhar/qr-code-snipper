@@ -228,11 +228,21 @@ body {
   cursor: pointer;
   font-weight: 500;
   color: var(--text-primary);
-  transition: color 0.2s ease;
+  text-decoration: none;
+  transition: all 0.2s ease;
 }
 
 .item .text:hover {
   text-decoration: underline dotted;
+}
+
+a.text {
+  color: var(--icon-hover);
+}
+
+a.text:hover {
+  color: var(--icon-hover);
+  text-decoration: underline;
 }
 
 .item .icon {
