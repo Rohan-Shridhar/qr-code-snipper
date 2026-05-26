@@ -36,49 +36,64 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
           console.log("QR Code data:", code.data);
           chrome.storage.local.get("snippedQR", (result) => {
             let qrdata = result.snippedQR || [];
-            if (!qrdata.includes(code.data)) {
+            const isAlreadySaved = qrdata.includes(code.data);
+            if (!isAlreadySaved) {
               qrdata.push(code.data);
               chrome.storage.local.set({ snippedQR: qrdata });
-            } else {
-              chrome.scripting.executeScript({
-                target: { tabId: sender.tab.id },
-                func: (url) => {
-                  const existing = document.getElementById("qr-snip-toast");
-                  if (existing) existing.remove();
-
-                  const toast = document.createElement("div");
-                  toast.id = "qr-snip-toast";
-                  Object.assign(toast.style, {
-                    position: "fixed",
-                    bottom: "28px",
-                    left: "50%",
-                    transform: "translateX(-50%)",
-                    backgroundColor: "#000",
-                    color: "#fff",
-                    padding: "10px 18px",
-                    borderRadius: "6px",
-                    fontSize: "13px",
-                    zIndex: "2147483647",
-                    maxWidth: "420px",
-                    wordBreak: "break-all",
-                    textAlign: "center",
-                    boxShadow: "0 2px 10px rgba(0,0,0,0.5)",
-                    opacity: "0",
-                    transition: "opacity 0.2s ease",
-                  });
-                  toast.textContent = `Already saved: ${url}`;
-                  document.body.appendChild(toast);
-                  requestAnimationFrame(() => {
-                    toast.style.opacity = "1";
-                  });
-                  setTimeout(() => {
-                    toast.style.opacity = "0";
-                    setTimeout(() => toast.remove(), 200);
-                  }, 3000);
-                },
-                args: [code.data],
-              });
             }
+
+            chrome.scripting.executeScript({
+              target: { tabId: sender.tab.id },
+              func: (text, alreadyExists) => {
+                const existing = document.getElementById("qr-snip-toast");
+                if (existing) existing.remove();
+
+                const toast = document.createElement("div");
+                toast.id = "qr-snip-toast";
+                Object.assign(toast.style, {
+                  position: "fixed",
+                  bottom: "28px",
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  backgroundColor: "rgba(15, 23, 42, 0.95)",
+                  color: "#f8fafc",
+                  padding: "12px 20px",
+                  borderRadius: "8px",
+                  fontSize: "13px",
+                  fontFamily: "'Outfit', -apple-system, sans-serif",
+                  fontWeight: "500",
+                  zIndex: "2147483647",
+                  maxWidth: "420px",
+                  wordBreak: "break-all",
+                  textAlign: "center",
+                  boxShadow: "0 10px 25px rgba(0, 0, 0, 0.3)",
+                  border: "1px solid rgba(255, 255, 255, 0.08)",
+                  opacity: "0",
+                  transition: "opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+                });
+
+                const trimmed = text.trim();
+                const isUrl = /^https?:\/\//i.test(trimmed) || /^[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,6}(:[0-9]{1,5})?(\/.*)?$/i.test(trimmed);
+
+                let messagePrefix = "Saved: ";
+                if (alreadyExists) {
+                  messagePrefix = "Already saved: ";
+                } else if (isUrl) {
+                  messagePrefix = "URL saved: ";
+                }
+
+                toast.textContent = `${messagePrefix}${text}`;
+                document.body.appendChild(toast);
+                requestAnimationFrame(() => {
+                  toast.style.opacity = "1";
+                });
+                setTimeout(() => {
+                  toast.style.opacity = "0";
+                  setTimeout(() => toast.remove(), 200);
+                }, 3000);
+              },
+              args: [code.data, isAlreadySaved],
+            });
           });
         } else {
           console.log("No QR code found.");
