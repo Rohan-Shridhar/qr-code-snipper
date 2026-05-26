@@ -52,9 +52,9 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
                 toast.id = "qr-snip-toast";
                 Object.assign(toast.style, {
                   position: "fixed",
-                  bottom: "28px",
+                  bottom: "10vh",
                   left: "50%",
-                  transform: "translateX(-50%)",
+                  transform: "translate(-50%, calc(10vh + 100%))",
                   backgroundColor: "rgba(15, 23, 42, 0.95)",
                   color: "#f8fafc",
                   padding: "12px 20px",
@@ -69,7 +69,7 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
                   boxShadow: "0 10px 25px rgba(0, 0, 0, 0.3)",
                   border: "1px solid rgba(255, 255, 255, 0.08)",
                   opacity: "0",
-                  transition: "opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+                  transition: "transform 0.6s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.4s ease-out",
                 });
 
                 const trimmed = text.trim();
@@ -84,12 +84,17 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
 
                 toast.textContent = `${messagePrefix}${text}`;
                 document.body.appendChild(toast);
+                
                 requestAnimationFrame(() => {
+                  toast.style.transform = "translate(-50%, 0)";
                   toast.style.opacity = "1";
                 });
+                
                 setTimeout(() => {
+                  toast.style.transition = "transform 0.4s cubic-bezier(0.47, 0, 0.745, 0.715), opacity 0.3s ease-in";
+                  toast.style.transform = "translate(-50%, calc(10vh + 100%))";
                   toast.style.opacity = "0";
-                  setTimeout(() => toast.remove(), 200);
+                  setTimeout(() => toast.remove(), 400);
                 }, 3000);
               },
               args: [code.data, isAlreadySaved],
