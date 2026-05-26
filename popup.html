@@ -2,16 +2,27 @@
 <html>
   <head>
     <title>QR Snipper</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="popup.css">
-    <link rel="stylesheet"  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-/>
-
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   </head>
   <body>
+    <div class="header">
+      <div class="logo">
+        <i class="fas fa-qrcode"></i>
+        <span>QR Snipper</span>
+      </div>
+      <button id="theme-toggle" class="theme-btn" title="Toggle Theme">
+        <i class="fas fa-moon"></i>
+      </button>
+    </div>
+    
     <button id="snip-btn">Snip QR Code</button>
     <div id="result">Waiting for the result....</div>
     <button id="clear-btn">Clear History</button>
+    
     <script src="popup.js"></script>
   </body>
 </html>

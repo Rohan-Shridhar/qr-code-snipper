@@ -1,5 +1,37 @@
 const snipBtn = document.getElementById("snip-btn");
 const clearBtn = document.getElementById("clear-btn");
+const themeToggleBtn = document.getElementById("theme-toggle");
+
+// Apply the theme to documentElement and update toggle icon/title
+function applyTheme(theme) {
+  document.documentElement.setAttribute("data-theme", theme);
+  const icon = themeToggleBtn.querySelector("i");
+  if (theme === "dark") {
+    icon.className = "fas fa-sun";
+    themeToggleBtn.title = "Switch to Light Mode";
+  } else {
+    icon.className = "fas fa-moon";
+    themeToggleBtn.title = "Switch to Dark Mode";
+  }
+}
+
+// Initial theme load
+chrome.storage.local.get("theme", (result) => {
+  let theme = result.theme;
+  if (!theme) {
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    theme = prefersDark ? "dark" : "light";
+  }
+  applyTheme(theme);
+});
+
+// Theme toggle click handler
+themeToggleBtn.addEventListener("click", () => {
+  const currentTheme = document.documentElement.getAttribute("data-theme") || "light";
+  const newTheme = currentTheme === "dark" ? "light" : "dark";
+  applyTheme(newTheme);
+  chrome.storage.local.set({ theme: newTheme });
+});
 
 chrome.storage.local.get("isSnipping", (result) => {
   if (result.isSnipping) {
