@@ -2,14 +2,48 @@
  * QR Snipper – Toast Component
  * Injectable content-script module. Exposes window.QRSnipperToast.show(options).
  *
- * @param {object}   options
- * @param {string}   options.message          Text to display
- * @param {'success'|'error'|'warning'|'info'} [options.type='info']  Toast type
- * @param {number}   [options.duration=3000]  Auto-dismiss delay in ms
- * @param {function} [options.onClose]        Called after the toast is removed
+ * Toast props contract:
+ * @typedef {Object} ToastOptions
+ * @property {string} message                          Text to display (required)
+ * @property {'success'|'error'|'warning'|'info'} [type='info']  Toast type
+ * @property {number} [duration=3000]                  Auto-dismiss delay in ms
+ * @property {function} [onClose]                      Called after the toast is removed
+ *
+ * @param {ToastOptions} options
  */
 (function () {
   const TOAST_ID = "qr-snip-toast";
+
+  function assertToastOptions(options) {
+    const allowedTypes = ["success", "error", "warning", "info"];
+
+    if (!options || typeof options !== "object") {
+      throw new TypeError("Toast.show: options object is required");
+    }
+
+    if (typeof options.message !== "string") {
+      throw new TypeError("Toast.show: message must be a string");
+    }
+
+    if (options.type != null) {
+      if (typeof options.type !== "string" || !allowedTypes.includes(options.type)) {
+        throw new TypeError(
+          "Toast.show: type must be one of 'success'|'error'|'info'|'warning'"
+        );
+      }
+    }
+
+    if (options.duration != null) {
+      if (typeof options.duration !== "number" || !Number.isFinite(options.duration)) {
+        throw new TypeError("Toast.show: duration must be a finite number");
+      }
+    }
+
+    if (options.onClose != null && typeof options.onClose !== "function") {
+      throw new TypeError("Toast.show: onClose must be a function");
+    }
+  }
+
 
   const BG_COLORS = {
     success: "#15803d",
@@ -19,7 +53,10 @@
   };
 
   function show({ message, type = "info", duration = 3000, onClose } = {}) {
+    assertToastOptions({ message, type, duration, onClose });
+
     // Remove any existing toast immediately
+
     const existing = document.getElementById(TOAST_ID);
     if (existing) existing.remove();
 

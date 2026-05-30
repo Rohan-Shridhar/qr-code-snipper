@@ -4,9 +4,18 @@
  * Injectable singleton that manages a queue of toasts and renders them all
  * inside a single ToastContainer div. Safe to inject multiple times.
  *
+ * Toast props contract:
+ * @typedef {Object} ToastOptions
+ * @property {string} message                          Text to display (required)
+ * @property {'success'|'error'|'warning'|'info'} [type='info'] Toast type
+ * @property {number} [duration=3000]                  Auto-dismiss delay in ms
+ * @property {function} [onClose]                      Called after the toast is removed
+ *
  * Exposes: window.QRSnipperToastContext
  *   .show({ message, type, duration, onClose }) → id
+ *
  *   .success(message, duration?, onClose?)      → id
+
  *   .error(message, duration?, onClose?)        → id
  *   .warning(message, duration?, onClose?)      → id
  *   .info(message, duration?, onClose?)         → id
@@ -97,8 +106,44 @@
     }, 280);
   }
 
+  function assertToastOptions(options) {
+    const allowedTypes = ["success", "error", "warning", "info"];
+
+    if (!options || typeof options !== "object") {
+      throw new TypeError("ToastContext.show: options object is required");
+    }
+
+    if (typeof options.message !== "string") {
+      throw new TypeError("ToastContext.show: message must be a string");
+    }
+
+    if (options.type != null) {
+      if (
+        typeof options.type !== "string" ||
+        !allowedTypes.includes(options.type)
+      ) {
+        throw new TypeError(
+          "ToastContext.show: type must be one of 'success'|'error'|'info'|'warning'"
+        );
+      }
+    }
+
+    if (options.duration != null) {
+      if (typeof options.duration !== "number" || !Number.isFinite(options.duration)) {
+        throw new TypeError("ToastContext.show: duration must be a finite number");
+      }
+    }
+
+    if (options.onClose != null && typeof options.onClose !== "function") {
+      throw new TypeError("ToastContext.show: onClose must be a function");
+    }
+  }
+
   function show({ message, type = "info", duration = 3000, onClose } = {}) {
+    assertToastOptions({ message, type, duration, onClose });
+
     const id        = ++idCounter;
+
     const container = getContainer();
     const el        = createToastElement({ id, message, type });
 
