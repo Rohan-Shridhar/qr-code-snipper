@@ -54,14 +54,13 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
             const isNew = !qrdata.includes(code.data);
             if (isNew) {
               qrdata.push(code.data);
-              chrome.storage.local.set({ snippedQR: qrdata });
-            }
-            if (tabId) {
-              showToastInTab(
-                tabId,
-                isNew ? "URL saved successfully" : "URL already saved",
-                3000
-              );
+              chrome.storage.local.set({ snippedQR: qrdata }, () => {
+                if (tabId) {
+                  showToastInTab(tabId, "URL saved successfully", 1000);
+                }
+              });
+            } else if (tabId) {
+              showToastInTab(tabId, "URL already saved", 1000);
             }
           });
         } else {

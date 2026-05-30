@@ -88,12 +88,29 @@ chrome.storage.local.get("snippedQR", (result) => {
   }
 });
 
+function showPageToast(message, duration) {
+  chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
+    if (!tab?.id) {
+      return;
+    }
+    chrome.scripting.executeScript({
+      target: { tabId: tab.id },
+      func: async (msg, dur, toastModuleUrl) => {
+        const { default: Toast } = await import(toastModuleUrl);
+        Toast(msg, dur);
+      },
+      args: [message, duration, chrome.runtime.getURL("Toast.js")],
+    });
+  });
+}
+
 clearBtn.addEventListener("click", () => {
   chrome.storage.local.remove("snippedQR", () => {
     const resultDiv = document.getElementById("result");
     resultDiv.innerHTML = "";
     resultDiv.textContent = "Waiting for the result....";
     updateClearButtonVisibility();
+    showPageToast("History cleared successfully", 3000);
   });
 });
 
