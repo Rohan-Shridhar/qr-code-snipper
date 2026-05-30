@@ -1,3 +1,5 @@
+import Toast from "./Toast.js";
+
 const snipBtn = document.getElementById("snip-btn");
 const clearBtn = document.getElementById("clear-btn");
 
@@ -94,6 +96,7 @@ clearBtn.addEventListener("click", () => {
     resultDiv.innerHTML = "";
     resultDiv.textContent = "Waiting for the result....";
     updateClearButtonVisibility();
+    Toast("History cleared");
   });
 });
 
