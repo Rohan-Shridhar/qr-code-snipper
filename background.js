@@ -43,8 +43,7 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
               chrome.storage.local.set({ snippedQR: qrdata });
             }
 
-            const trimmed = code.data.trim();
-            const isUrl = /^https?:\/\//i.test(trimmed);
+            const isUrl = /^https?:\/\//i.test(code.data.trim());
 
             let toastMessage;
             let toastType;
@@ -60,17 +59,16 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
               toastType    = "info";
             }
 
-            // Step 1: inject Toast.js (defines window.QRSnipperToast)
+            // Inject ToastContext + useToast (in order), then show the toast
             chrome.scripting
               .executeScript({
                 target: { tabId: sender.tab.id },
-                files: ["Toast.js"],
+                files: ["ToastContext.js", "useToast.js"],
               })
               .then(() => {
-                // Step 2: call the toast with serialisable args
                 chrome.scripting.executeScript({
                   target: { tabId: sender.tab.id },
-                  func: (opts) => window.QRSnipperToast.show(opts),
+                  func: (opts) => window.useToast().show(opts),
                   args: [{ message: toastMessage, type: toastType, duration: 3000 }],
                 });
               });
