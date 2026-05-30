@@ -31,20 +31,23 @@ function applyContentPadding(toast, message) {
   toast.style.paddingRight = `${horizontalPadding}px`;
 }
 
-function waitForBottomTransition(toast, raised) {
-  return new Promise((resolve) => {
-    const onTransitionEnd = (event) => {
-      if (event.propertyName !== "bottom") {
-        return;
-      }
-      const isRaised = toast.classList.contains("toast--raised");
-      if (isRaised === raised) {
-        toast.removeEventListener("transitionend", onTransitionEnd);
-        resolve();
-      }
-    };
-    toast.addEventListener("transitionend", onTransitionEnd);
-  });
+function waitForBottomTransition(toast, raised, timeoutMs = 2000) {
+  return Promise.race([
+    new Promise((resolve) => {
+      const onTransitionEnd = (event) => {
+        if (event.propertyName !== "bottom") {
+          return;
+        }
+        const isRaised = toast.classList.contains("toast--raised");
+        if (isRaised === raised) {
+          toast.removeEventListener("transitionend", onTransitionEnd);
+          resolve();
+        }
+      };
+      toast.addEventListener("transitionend", onTransitionEnd);
+    }),
+    new Promise((resolve) => setTimeout(resolve, timeoutMs)),
+  ]);
 }
 
 function createToastElement(message) {
@@ -53,6 +56,20 @@ function createToastElement(message) {
   toast.setAttribute("role", "status");
   toast.textContent = message;
   applyContentPadding(toast, message);
+  Object.assign(toast.style, {
+    position: "fixed",
+    left: "50%",
+    transform: "translateX(-50%)",
+    bottom: "7vh",
+    zIndex: "2147483647",
+    backgroundColor: "#3a3a3a",
+    color: "#ffffff",
+    boxSizing: "border-box",
+    width: "max-content",
+    maxWidth: "calc(100vw - 32px)",
+    maxHeight: "10vh",
+    overflow: "hidden",
+  });
   return toast;
 }
 
@@ -64,7 +81,7 @@ export default function Toast(message, duration = 2000) {
   loadStyles();
 
   const toast = createToastElement(message);
-  document.body.appendChild(toast);
+  (document.body || document.documentElement).appendChild(toast);
 
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {

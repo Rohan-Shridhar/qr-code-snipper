@@ -4,17 +4,26 @@ function showToastInTab(tabId, message, duration = 2000) {
   if (!tabId || !message) {
     return;
   }
-  chrome.scripting.executeScript({
-    target: { tabId },
-    func: async (msg, dur, toastModuleUrl) => {
-      const { default: Toast } = await import(toastModuleUrl);
-      Toast(msg, dur);
-    },
-    args: [message, duration, chrome.runtime.getURL("Toast.js")],
-  });
+  chrome.scripting
+    .insertCSS({ target: { tabId }, files: ["Toast.css"] })
+    .catch(() => {});
+  chrome.scripting
+    .executeScript({
+      target: { tabId },
+      files: ["toastInject.js"],
+      func: (msg, dur) => {
+        window.__qrSnipperShowToast(msg, dur);
+      },
+      args: [message, duration],
+    })
+    .catch((err) => console.error("[QR Snipper] Toast injection failed:", err));
 }
 
 chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
+  if (message.type === "SHOW_TOAST") {
+    showToastInTab(message.tabId, message.message, message.duration);
+    return;
+  }
   if (message.type === "CAPTURE") {
     const tabId = sender.tab?.id;
     chrome.tabs.captureVisibleTab(null, { format: "png" }, async (dataUrl) => {
