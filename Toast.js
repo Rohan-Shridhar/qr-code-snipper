@@ -25,30 +25,10 @@
 
     const toast = document.createElement("div");
     toast.id = TOAST_ID;
+    toast.className = "qr-snip-toast";
 
-    Object.assign(toast.style, {
-      position:        "fixed",
-      bottom:          "10vh",
-      left:            "50%",
-      transform:       "translate(-50%, calc(10vh + 100%))",
-      backgroundColor: BG_COLORS[type] || BG_COLORS.info,
-      color:           "#ffffff",
-      padding:         "12px 20px",
-      borderRadius:    "8px",
-      fontSize:        "13px",
-      fontFamily:      "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-      fontWeight:      "500",
-      zIndex:          "2147483647",
-      maxWidth:        "420px",
-      wordBreak:       "break-all",
-      textAlign:       "center",
-      boxShadow:       "0 10px 25px rgba(0,0,0,0.35)",
-      border:          "1px solid rgba(255,255,255,0.08)",
-      cursor:          "pointer",
-      opacity:         "0",
-      transition:      "transform 0.5s cubic-bezier(0.19,1,0.22,1), opacity 0.35s ease-out",
-      userSelect:      "none",
-    });
+    // Only dynamic parts (per-type background color)
+    toast.style.backgroundColor = BG_COLORS[type] || BG_COLORS.info;
 
     toast.textContent = message;
     document.body.appendChild(toast);

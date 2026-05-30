@@ -68,28 +68,10 @@
   function createToastElement({ id, message, type }) {
     const el = document.createElement("div");
     el.dataset.toastId = String(id);
+    el.className = "qr-snip-toast qr-snip-toast-item";
 
-    Object.assign(el.style, {
-      backgroundColor: BG_COLORS[type] || BG_COLORS.info,
-      color:           "#ffffff",
-      padding:         "10px 18px",
-      borderRadius:    "8px",
-      fontSize:        "13px",
-      fontFamily:      "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-      fontWeight:      "500",
-      maxWidth:        "420px",
-      wordBreak:       "break-all",
-      textAlign:       "center",
-      boxShadow:       "0 4px 16px rgba(0,0,0,0.35)",
-      border:          "1px solid rgba(255,255,255,0.1)",
-      cursor:          "pointer",
-      pointerEvents:   "auto",
-      userSelect:      "none",
-      // enter state
-      opacity:         "0",
-      transform:       "translateY(10px) scale(0.97)",
-      transition:      "opacity 0.28s ease, transform 0.28s ease",
-    });
+    // Only dynamic parts (per-type background color)
+    el.style.backgroundColor = BG_COLORS[type] || BG_COLORS.info;
 
     el.textContent = message;
     return el;
@@ -124,7 +106,7 @@
 
     // Animate in on next frame
     requestAnimationFrame(() => {
-      el.style.opacity   = "1";
+      el.style.opacity = "1";
       el.style.transform = "translateY(0) scale(1)";
     });
 

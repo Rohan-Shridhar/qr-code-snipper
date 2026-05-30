@@ -1,0 +1,69 @@
+/* Toast UI styles injected by QR Snipper
+   Used by Toast.js and ToastContext.js.
+
+   Note: these scripts still set dynamic background colors per type.
+*/
+
+#qr-snip-toast,
+.qr-snip-toast {
+  position: fixed;
+  bottom: 10vh;
+  left: 50%;
+  transform: translate(-50%, calc(10vh + 100%));
+  color: #ffffff;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-weight: 500;
+  z-index: 2147483647;
+  max-width: 420px;
+  word-break: break-all;
+  text-align: center;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.35);
+  border: 1px solid rgba(255,255,255,0.08);
+  cursor: pointer;
+  opacity: 0;
+  transition: transform 0.5s cubic-bezier(0.19,1,0.22,1), opacity 0.35s ease-out;
+  user-select: none;
+}
+
+/* ToastContext container */
+#qr-snip-toast-container {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  z-index: 2147483647;
+  pointer-events: none; /* container click-through */
+  width: max-content;
+  max-width: min(420px, 90vw);
+}
+
+/* ToastContext individual toasts */
+#qr-snip-toast-container > .qr-snip-toast-item {
+  color: #ffffff;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-weight: 500;
+  max-width: 420px;
+  word-break: break-all;
+  text-align: center;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.35);
+  border: 1px solid rgba(255,255,255,0.1);
+  cursor: pointer;
+  pointer-events: auto;
+  user-select: none;
+
+  /* enter state */
+  opacity: 0;
+  transform: translateY(10px) scale(0.97);
+  transition: opacity 0.28s ease, transform 0.28s ease;
+}
+
