@@ -36,8 +36,10 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
           console.log("QR Code data:", code.data);
           chrome.storage.local.get("snippedQR", (result) => {
             let qrdata = result.snippedQR || [];
-            qrdata.push(code.data);
-            chrome.storage.local.set({ snippedQR: qrdata });
+            if (!qrdata.includes(code.data)) {
+              qrdata.push(code.data);
+              chrome.storage.local.set({ snippedQR: qrdata });
+            }
           });
         } else {
           console.log("No QR code found.");
