@@ -37,68 +37,41 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
           chrome.storage.local.get("snippedQR", (result) => {
             let qrdata = result.snippedQR || [];
             const isAlreadySaved = qrdata.includes(code.data);
+
             if (!isAlreadySaved) {
               qrdata.push(code.data);
               chrome.storage.local.set({ snippedQR: qrdata });
             }
 
-            chrome.scripting.executeScript({
-              target: { tabId: sender.tab.id },
-              func: (text, alreadyExists) => {
-                const existing = document.getElementById("qr-snip-toast");
-                if (existing) existing.remove();
+            const isUrl = /^https?:\/\//i.test(code.data.trim());
 
-                const toast = document.createElement("div");
-                toast.id = "qr-snip-toast";
-                Object.assign(toast.style, {
-                  position: "fixed",
-                  bottom: "10vh",
-                  left: "50%",
-                  transform: "translate(-50%, calc(10vh + 100%))",
-                  backgroundColor: "rgba(15, 23, 42, 0.95)",
-                  color: "#f8fafc",
-                  padding: "12px 20px",
-                  borderRadius: "8px",
-                  fontSize: "13px",
-                  fontFamily: "'Outfit', -apple-system, sans-serif",
-                  fontWeight: "500",
-                  zIndex: "2147483647",
-                  maxWidth: "420px",
-                  wordBreak: "break-all",
-                  textAlign: "center",
-                  boxShadow: "0 10px 25px rgba(0, 0, 0, 0.3)",
-                  border: "1px solid rgba(255, 255, 255, 0.08)",
-                  opacity: "0",
-                  transition: "transform 0.6s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.4s ease-out",
+            let toastMessage;
+            let toastType;
+
+            if (isAlreadySaved) {
+              toastMessage = `Already saved: ${code.data}`;
+              toastType    = "warning";
+            } else if (isUrl) {
+              toastMessage = `URL saved: ${code.data}`;
+              toastType    = "success";
+            } else {
+              toastMessage = `Saved: ${code.data}`;
+              toastType    = "info";
+            }
+
+            // Inject ToastContext + useToast (in order), then show the toast
+            chrome.scripting
+              .executeScript({
+                target: { tabId: sender.tab.id },
+                files: ["ToastContext.js", "useToast.js"],
+              })
+              .then(() => {
+                chrome.scripting.executeScript({
+                  target: { tabId: sender.tab.id },
+                  func: (opts) => window.useToast().show(opts),
+                  args: [{ message: toastMessage, type: toastType, duration: 3000 }],
                 });
-
-                const trimmed = text.trim();
-                const isUrl = /^https?:\/\//i.test(trimmed) || /^[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,6}(:[0-9]{1,5})?(\/.*)?$/i.test(trimmed);
-
-                let messagePrefix = "Saved: ";
-                if (alreadyExists) {
-                  messagePrefix = "Already saved: ";
-                } else if (isUrl) {
-                  messagePrefix = "URL saved: ";
-                }
-
-                toast.textContent = `${messagePrefix}${text}`;
-                document.body.appendChild(toast);
-                
-                requestAnimationFrame(() => {
-                  toast.style.transform = "translate(-50%, 0)";
-                  toast.style.opacity = "1";
-                });
-                
-                setTimeout(() => {
-                  toast.style.transition = "transform 0.4s cubic-bezier(0.47, 0, 0.745, 0.715), opacity 0.3s ease-in";
-                  toast.style.transform = "translate(-50%, calc(10vh + 100%))";
-                  toast.style.opacity = "0";
-                  setTimeout(() => toast.remove(), 400);
-                }, 3000);
-              },
-              args: [code.data, isAlreadySaved],
-            });
+              });
           });
         } else {
           console.log("No QR code found.");
