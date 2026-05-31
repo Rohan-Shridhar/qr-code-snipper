@@ -1,27 +1,31 @@
 importScripts("jsQR.js");
 
-function showToastInTab(tabId, message, duration = 2000) {
+function showToastInTab(tabId, message, duration = 1000) {
   if (!tabId || !message) {
     return;
   }
   chrome.scripting
     .insertCSS({ target: { tabId }, files: ["Toast.css"] })
     .catch(() => {});
+  const toastModuleUrl = chrome.runtime.getURL("Toast.js");
   chrome.scripting
     .executeScript({
       target: { tabId },
-      files: ["toastInject.js"],
-      func: (msg, dur) => {
-        window.__qrSnipperShowToast(msg, dur);
+      func: (msg, dur, toastUrl) => {
+        import(toastUrl)
+          .then((mod) => mod.default(msg, dur))
+          .catch((err) =>
+            console.error("[QR Snipper] Toast failed to load:", err)
+          );
       },
-      args: [message, duration],
+      args: [message, duration, toastModuleUrl],
     })
     .catch((err) => console.error("[QR Snipper] Toast injection failed:", err));
 }
 
 chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
   if (message.type === "SHOW_TOAST") {
-    showToastInTab(message.tabId, message.message, message.duration);
+    showToastInTab(message.tabId, message.message);
     return;
   }
   if (message.type === "CAPTURE") {
@@ -65,11 +69,11 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
               qrdata.push(code.data);
               chrome.storage.local.set({ snippedQR: qrdata }, () => {
                 if (tabId) {
-                  showToastInTab(tabId, "URL saved successfully", 1000);
+                  showToastInTab(tabId, "URL saved successfully");
                 }
               });
             } else if (tabId) {
-              showToastInTab(tabId, "URL already saved", 1000);
+              showToastInTab(tabId, "URL already saved");
             }
           });
         } else {

@@ -31,7 +31,7 @@ function applyContentPadding(toast, message) {
   toast.style.paddingRight = `${horizontalPadding}px`;
 }
 
-function waitForBottomTransition(toast, raised, timeoutMs = 2000) {
+function waitForBottomTransition(toast, raised, timeoutMs = 600) {
   return Promise.race([
     new Promise((resolve) => {
       const onTransitionEnd = (event) => {
@@ -60,20 +60,27 @@ function createToastElement(message) {
     position: "fixed",
     left: "50%",
     transform: "translateX(-50%)",
-    bottom: "7vh",
     zIndex: "2147483647",
     backgroundColor: "#3a3a3a",
     color: "#ffffff",
     boxSizing: "border-box",
     width: "max-content",
     maxWidth: "calc(100vw - 32px)",
-    maxHeight: "10vh",
+    maxHeight: "15vh",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
     overflow: "hidden",
   });
   return toast;
 }
 
-export default function Toast(message, duration = 2000) {
+/**
+ * @example Toast("URL saved successfully");
+ * @example Toast("URL already saved");
+ * @example Toast("History cleared successfully");
+ */
+export default function Toast(message, duration = 1000) {
   if (!message) {
     return;
   }
@@ -83,11 +90,11 @@ export default function Toast(message, duration = 2000) {
   const toast = createToastElement(message);
   (document.body || document.documentElement).appendChild(toast);
 
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      toast.classList.add("toast--raised");
-    });
-  });
+  // Force initial paint at 7vh before animating to 15vh
+  toast.offsetHeight;
+  setTimeout(() => {
+    toast.classList.add("toast--raised");
+  }, 75);
 
   void (async () => {
     await waitForBottomTransition(toast, true);

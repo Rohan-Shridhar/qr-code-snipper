@@ -100,7 +100,6 @@ clearBtn.addEventListener("click", () => {
           type: "SHOW_TOAST",
           tabId: tab.id,
           message: "History cleared successfully",
-          duration: 3000,
         });
       }
     });

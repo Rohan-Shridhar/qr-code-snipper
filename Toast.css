@@ -7,8 +7,11 @@
   box-sizing: border-box;
   width: max-content;
   max-width: calc(100vw - 32px);
-  max-height: 10vh;
+  max-height: 15vh;
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: #3a3a3a;
   color: #ffffff;
   font-family: system-ui, -apple-system, sans-serif;
@@ -17,9 +20,9 @@
   white-space: nowrap;
   text-align: center;
   border-radius: 8px;
-  transition: bottom 0.35s ease;
+  transition: bottom 0.45s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .toast--raised {
-  bottom: 10vh;
+  bottom: 15vh;
 }
