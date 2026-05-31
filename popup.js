@@ -94,6 +94,15 @@ clearBtn.addEventListener("click", () => {
     resultDiv.innerHTML = "";
     resultDiv.textContent = "Waiting for the result....";
     updateClearButtonVisibility();
+    chrome.tabs.query({ active: true, lastFocusedWindow: true }, ([tab]) => {
+      if (tab?.id) {
+        chrome.runtime.sendMessage({
+          type: "SHOW_TOAST",
+          tabId: tab.id,
+          message: "History cleared successfully",
+        });
+      }
+    });
   });
 });
 

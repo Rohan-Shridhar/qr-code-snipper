@@ -31,7 +31,7 @@
   },
   "web_accessible_resources": [
     {
-      "resources": ["jsQR.js"],
+      "resources": ["jsQR.js", "Toast.js", "Toast.css", "toastInject.js"],
       "matches": ["<all_urls>"]
     }
   ],
