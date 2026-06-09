@@ -55,15 +55,22 @@ The extension will now appear in your toolbar — ready to use! 🚀
 ## 📂 Folder Structure
 
 ```bash
-qr-code-snipper-extension/
-├── manifest.json           # Extension metadata
-├── popup.html              # Popup UI for scanning
-├── popup.js                # QR code scanning logic
-├── popup.css               # Popup styling
-├── background.js           # Background tasks
-├── snip.js                 # Snip the QR code
-├── jsQR.js                 # Read the QR code
-├── assets/                 # Extension icons
+└──qr-code-snipper/
+    ├── assets/            # Extension icons
+    ├── README.md          # Documentation
+    ├── background.js      # Background tasks
+    ├── LICENSE            # MIT License
+    ├── LICENSE-jsQR       # Apache License 2.0
+    ├── jsQR.js            # Read the QR code
+    ├── manifest.json      # Extension metadata
+    ├── popup.css          # Popup styling
+    ├── popup.html         # Popup UI for scanning
+    ├── popup.js           # QR code scanning logic
+    ├── snip.js            # Snip the QR code
+    ├── Toast.css          # Toast styling
+    ├── Toast.js           # Toast logic
+    └── toastInject.js     # Toast definition
+
 ```
 
 ## 🔑 Permissions
